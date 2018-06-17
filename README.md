@@ -1,2 +1,2 @@
-# ACM-UVA-ProblemasResueltos
-Problemas resueltos del juez ACM-UVA
+# Competitive-Programming-Solved-Problems
+Problemas resueltos de distintos Concursos de programación
