@@ -1,0 +1,10 @@
+===Pizzas===
+Total pizzas: 5
+Maximo ingredientes Pizza: 3
+Minimo ingredientes Pizza: 2
+Total de ingredientes diferentes: 7
+Media de ingredientes por Pizza: 2.8
+-> Desviacion tipica: 0.39999999999999997
+-> Percentil 25: 3.0
+-> Percentil 50 (Mediana): 3.0
+-> Percentil 75: 3.0

@@ -1,0 +1,11 @@
+===Pizzas===
+Total pizzas: 10000
+Maximo ingredientes Pizza: 1010
+Minimo ingredientes Pizza: 1
+Total de ingredientes diferentes: 10000
+Media de ingredientes por Pizza: 101.1498
+-> Desviacion tipica: 101.16312648371441
+-> Percentil 25: 29.0
+-> Percentil 50 (Mediana): 70.0
+-> Percentil 75: 141.0
+Algoritmo Miguel 94674.076
