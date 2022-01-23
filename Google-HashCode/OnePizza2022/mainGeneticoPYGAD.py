@@ -3,10 +3,8 @@ import sys
 import math
 import random
 
-import itertools as it
-
-#NOTA PARA ACORDARME: QUITAR N INGREDIENTES USANDO PYTHON Y NO CON CODIGO COMO YO
-
+import numpy as np
+import pygad
 
 
 #Variables globales
@@ -24,9 +22,18 @@ maxNoGustaIngredientesFin=0
 #Imprimir solucion
 
 def imprimirSolucion(s):
+
+    global listaTotal
+    conjuntoSol=set()
+    print(listaTotal)
+    print(s)
+    for pos in range (len(listaTotal)):
+        print(pos)
+        if s[pos]:
+            conjuntoSol.add(listaTotal[pos])
     cad=str(len(s))
 
-    for x in s:
+    for x in conjuntoSol:
         cad=cad + " " + x
 
     print(cad)
@@ -34,12 +41,17 @@ def imprimirSolucion(s):
 
 #Imprimir solucion
 
-def scoreSolucion(s):
+def scoreSolucion(s,s_idx):
 
     # Numero de potenciales clientes y otras variables globales
     global nClientes, leGusta, noLeGusta,noLeGustaOrdenado,ingredientesDisponibles ,listaTotal
 
-    conjuntoSol=set(s)
+    conjuntoSol=set(listaTotal)
+    for pos in range (len(s)):
+        if s[pos]:
+            if (noLeGustaOrdenado[pos]) in conjuntoSol:
+                conjuntoSol.remove(noLeGustaOrdenado[pos])
+            
     score=0
     for x in range(nClientes):
         # print(conjuntoSol)
@@ -48,37 +60,34 @@ def scoreSolucion(s):
         if( len(conjuntoSol | set(leGusta[x]))==len(conjuntoSol) and len(conjuntoSol & set(noLeGusta[x]))==0):
             score=score+1
 
-    return score
-
+    return -score
 
 
 def obtenerSolucion():
     global listaTotal,noLeGustaOrdenado,maxNoGustaIngredientesIni,maxNoGustaIngredientesFin,profundidadIngredientesIni,profundidadIngredientesFin
-
-    mejorScore=0
+    
     mejorSol=[]
+    ga_instance = pygad.GA(num_generations=500,
+                       num_parents_mating=5,
+                       fitness_func=scoreSolucion,
+                       sol_per_pop=8,
+                       num_genes=len(noLeGustaOrdenado),
+                       #initial_population=[1]*(len(listaTotal)),
+                       mutation_percent_genes=0.01,
+                       mutation_type="random",
+                       mutation_num_genes=3,
+                       mutation_by_replacement=True,
+                       random_mutation_min_val=0.0,
+                       random_mutation_max_val=1.0)
 
-    for nComb in range(profundidadIngredientesIni,profundidadIngredientesFin+1):
+    ga_instance.run()
 
-        combinaciones=list(it.combinations(noLeGustaOrdenado[maxNoGustaIngredientesIni:maxNoGustaIngredientesFin],nComb ))
-        sys.stderr.write("Proceso: "+str(nComb)+" Combinaciones: "+str(len (combinaciones))+"\n")
+    solution, solution_fitness, solution_idx = ga_instance.best_solution()
+    print("Parameters of the best solution : {solution}".format(solution=solution))
+    print("Fitness value of the best solution = {solution_fitness}".format(solution_fitness=solution_fitness))
 
-        #print(combinaciones)
-        for com in combinaciones:
-            listaTMP=listaTotal[:]
-            #print(listaTMP)
-            #print(com)
-            #Elimino
-            for r in com:
-                if r in listaTMP:
-                    listaTMP.remove(r)
-            score=scoreSolucion(listaTMP)
-            if score>mejorScore:
-                sys.stderr.write("Mejor score: "+str(score)+"\n")
-
-                mejorScore=score
-                mejorSol=listaTMP[:]
-
+    print(solution)
+    mejorSol=solution
     return mejorSol
 
 
@@ -95,20 +104,6 @@ def main():
     for line in myfile:
         noLeGustaOrdenado.append(line.strip())
 
-    #Obtenemos la profundidad de busqueda inicia deseada del segundo parametro
-    profundidadIngredientesIni=int(sys.argv[2])
-
-
-
-    #Obtenemos la profundidad de busqueda final deseada del tercer parametro
-    profundidadIngredientesFin=int(sys.argv[3])
-
-    #Obtenemos el inici maximo de busqueda en 4o parametro
-    maxNoGustaIngredientesIni=int(sys.argv[4])
-    #Obtenemos el inici maximo de busqueda en 4o parametro
-    maxNoGustaIngredientesFin=int(sys.argv[5])
-
-    
 
 
     #Leo el numero de potenciales clientes 
@@ -138,7 +133,7 @@ def main():
 
     imprimirSolucion(sol)
     #Imprimimos score en stderr
-    sys.stderr.write("Score: "+str(scoreSolucion(sol))+"\n")
+    sys.stderr.write("Score: "+str(scoreSolucion(sol,None))+"\n")
 
 # Codigo a ejecutar inicial
 main()

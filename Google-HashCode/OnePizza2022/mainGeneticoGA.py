@@ -1,11 +1,11 @@
 #!/usr/bin/python3
+from os import remove
 import sys
 import math
 import random
 
-import itertools as it
-
-#NOTA PARA ACORDARME: QUITAR N INGREDIENTES USANDO PYTHON Y NO CON CODIGO COMO YO
+import numpy as np
+from geneticalgorithm import geneticalgorithm as ga
 
 
 
@@ -24,9 +24,18 @@ maxNoGustaIngredientesFin=0
 #Imprimir solucion
 
 def imprimirSolucion(s):
+
+    global listaTotal
+    conjuntoSol=set()
+    print(listaTotal)
+    print(s)
+    for pos in range (len(listaTotal)):
+        print(pos)
+        if s[pos]:
+            conjuntoSol.add(listaTotal[pos])
     cad=str(len(s))
 
-    for x in s:
+    for x in conjuntoSol:
         cad=cad + " " + x
 
     print(cad)
@@ -39,7 +48,12 @@ def scoreSolucion(s):
     # Numero de potenciales clientes y otras variables globales
     global nClientes, leGusta, noLeGusta,noLeGustaOrdenado,ingredientesDisponibles ,listaTotal
 
-    conjuntoSol=set(s)
+    conjuntoSol=set(listaTotal)
+    for pos in range (len(s)):
+        if s[pos]:
+            if (noLeGustaOrdenado[pos]) in conjuntoSol:
+                conjuntoSol.remove(noLeGustaOrdenado[pos])
+            
     score=0
     for x in range(nClientes):
         # print(conjuntoSol)
@@ -48,37 +62,26 @@ def scoreSolucion(s):
         if( len(conjuntoSol | set(leGusta[x]))==len(conjuntoSol) and len(conjuntoSol & set(noLeGusta[x]))==0):
             score=score+1
 
-    return score
+    return -score
 
 
 
 def obtenerSolucion():
     global listaTotal,noLeGustaOrdenado,maxNoGustaIngredientesIni,maxNoGustaIngredientesFin,profundidadIngredientesIni,profundidadIngredientesFin
+    algorithm_param = {'max_num_iteration': 1000,\
+                   'population_size':100,\
+                   'mutation_probability':0.1,\
+                   'elit_ratio': 0.01,\
+                   'crossover_probability': 0.5,\
+                   'parents_portion': 0.3,\
+                   'crossover_type':'uniform',\
+                   'max_iteration_without_improv':None}
 
-    mejorScore=0
-    mejorSol=[]
+    model=ga(function=scoreSolucion,dimension=len(noLeGustaOrdenado),variable_type='bool',algorithm_parameters=algorithm_param)
 
-    for nComb in range(profundidadIngredientesIni,profundidadIngredientesFin+1):
-
-        combinaciones=list(it.combinations(noLeGustaOrdenado[maxNoGustaIngredientesIni:maxNoGustaIngredientesFin],nComb ))
-        sys.stderr.write("Proceso: "+str(nComb)+" Combinaciones: "+str(len (combinaciones))+"\n")
-
-        #print(combinaciones)
-        for com in combinaciones:
-            listaTMP=listaTotal[:]
-            #print(listaTMP)
-            #print(com)
-            #Elimino
-            for r in com:
-                if r in listaTMP:
-                    listaTMP.remove(r)
-            score=scoreSolucion(listaTMP)
-            if score>mejorScore:
-                sys.stderr.write("Mejor score: "+str(score)+"\n")
-
-                mejorScore=score
-                mejorSol=listaTMP[:]
-
+    model.run()
+    mejorSol=model.output_dict["variable"]
+    print(mejorSol)
     return mejorSol
 
 
@@ -95,20 +98,6 @@ def main():
     for line in myfile:
         noLeGustaOrdenado.append(line.strip())
 
-    #Obtenemos la profundidad de busqueda inicia deseada del segundo parametro
-    profundidadIngredientesIni=int(sys.argv[2])
-
-
-
-    #Obtenemos la profundidad de busqueda final deseada del tercer parametro
-    profundidadIngredientesFin=int(sys.argv[3])
-
-    #Obtenemos el inici maximo de busqueda en 4o parametro
-    maxNoGustaIngredientesIni=int(sys.argv[4])
-    #Obtenemos el inici maximo de busqueda en 4o parametro
-    maxNoGustaIngredientesFin=int(sys.argv[5])
-
-    
 
 
     #Leo el numero de potenciales clientes 
