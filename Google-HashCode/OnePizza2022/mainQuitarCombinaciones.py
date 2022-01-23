@@ -3,6 +3,8 @@ import sys
 import math
 import random
 
+import itertools as it
+
 #NOTA PARA ACORDARME: QUITAR N INGREDIENTES USANDO PYTHON Y NO CON CODIGO COMO YO
 
 
@@ -14,6 +16,9 @@ noLeGusta=[]
 noLeGustaOrdenado=[]
 ingredientesDisponibles=set()
 listaTotal=[]
+profundidadIngredientesIni=0
+profundidadIngredientesFin=0
+maxNoGustaIngredientes=0
 
 #Imprimir solucion
 
@@ -46,41 +51,40 @@ def scoreSolucion(s):
 
 
 
-
-
-#Obtenemos solucion
-def obtenerSolucion(listaTotal,indiceNoGusta,profundidad):
-    global noLeGustaOrdenado
-
-    listaTmp=[]
+def obtenerSolucion():
+    global listaTotal,noLeGustaOrdenado,maxNoGustaIngredientes,profundidadIngredientesIni,profundidadIngredientesFin
 
     mejorScore=0
     mejorSol=[]
-    for a in listaTotal:
-        if a!=noLeGustaOrdenado[indiceNoGusta]:
-            listaTmp.append(a)
-    
-    if(profundidad<=0):
-        return listaTmp
-    
-    z=indiceNoGusta+1
-    while z < len(noLeGustaOrdenado):
-        sol=obtenerSolucion(listaTmp,z,profundidad-1)
-        puntos=scoreSolucion(sol)
-        if(puntos>mejorScore):
-            mejorScore=puntos
-            mejorSol=sol
 
-        z=z+1
+    for nComb in range(profundidadIngredientesIni,profundidadIngredientesFin+1):
+
+        combinaciones=list(it.combinations(noLeGustaOrdenado[:maxNoGustaIngredientes],nComb ))
+        sys.stderr.write("Proceso: "+str(nComb)+" Combinaciones: "+str(len (combinaciones))+"\n")
+
+        #print(combinaciones)
+        for com in combinaciones:
+            listaTMP=listaTotal[:]
+            #print(listaTMP)
+            #print(com)
+            #Elimino
+            for r in com:
+                if r in listaTMP:
+                    listaTMP.remove(r)
+            score=scoreSolucion(listaTMP)
+            if score>mejorScore:
+                sys.stderr.write("Mejor score: "+str(score)+"\n")
+
+                mejorScore=score
+                mejorSol=listaTMP[:]
+
     return mejorSol
-
-
 
 
 #Main
 def main():
     # Numero de potenciales clientes y otras variables globales
-    global nClientes, leGusta, noLeGusta, noLeGustaOrdenado,ingredientesDisponibles
+    global nClientes, leGusta, noLeGusta, noLeGustaOrdenado,ingredientesDisponibles,profundidadIngredientesIni,profundidadIngredientesFin, maxNoGustaIngredientes, listaTotal
 
 
     #Indico que voy a coger el primer parametro como fichero de entrada
@@ -88,10 +92,18 @@ def main():
     myfile=open(fichero, "r")
     #De ese fichero, leemos no gusta ordenado
     for line in myfile:
-        noLeGustaOrdenado.append(line)
+        noLeGustaOrdenado.append(line.strip())
 
-    #Obtenemos la profundidad de busqueda deseada del segundo parametro
-    profundidadIngredientes=int(sys.argv[2])
+    #Obtenemos la profundidad de busqueda inicia deseada del segundo parametro
+    profundidadIngredientesIni=int(sys.argv[2])
+
+
+
+    #Obtenemos la profundidad de busqueda final deseada del tercer parametro
+    profundidadIngredientesFin=int(sys.argv[3])
+
+    #Obtenemos el maximo de busqueda en 4o parametro
+    maxNoGustaIngredientes=int(sys.argv[4])
 
     
 
@@ -116,13 +128,14 @@ def main():
 
     #Ingredientes a eliminar
     #Profundidad ingredientes
-    sol=obtenerSolucion(listaTotal,0,profundidadIngredientes-1)
+    sol=obtenerSolucion()
 
 
 
 
     imprimirSolucion(sol)
-    print(scoreSolucion(sol))
+    #Imprimimos score en stderr
+    sys.stderr.write("Score: "+str(scoreSolucion(sol))+"\n")
 
 # Codigo a ejecutar inicial
 main()

@@ -56,11 +56,16 @@ for ingr in ingredientesDisponibles:
     dfNoGusta = dfNoGusta.append(fila, ignore_index=True)
 
 dfGusta=dfGusta.sort_values('Conteo', ascending=False)
-pd.set_option("max_rows", None)
 #dfGusta.head()
 
 dfNoGusta=dfNoGusta.sort_values('Conteo', ascending=False)
+pd.set_option("max_rows", None)
+dfNoGusta.head()
+
+
+listaGusta=list(dfGusta["Ingredientes"])
 
 #Imprimimos salida estandard los que no gustan
 for x in dfNoGusta["Ingredientes"]:
-    print(x)
+    if x in listaGusta:
+        print(x)
