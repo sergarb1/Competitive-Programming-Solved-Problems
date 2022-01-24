@@ -21,25 +21,25 @@ maxNoGustaIngredientesFin=0
 
 #Imprimir solucion
 
+#Imprimir solucion
+
 def imprimirSolucion(s):
 
     global listaTotal
-    conjuntoSol=set()
-    print(listaTotal)
-    print(s)
-    for pos in range (len(listaTotal)):
-        print(pos)
+    cad=""
+    conjuntoSol=set(listaTotal)
+    for pos in range (len(s)):
         if s[pos]:
-            conjuntoSol.add(listaTotal[pos])
-    cad=str(len(s))
-
+            if (noLeGustaOrdenado[pos]) in conjuntoSol:
+                conjuntoSol.remove(noLeGustaOrdenado[pos])
+    
     for x in conjuntoSol:
         cad=cad + " " + x
 
-    print(cad)
+    print(str(len(conjuntoSol))+cad)
 
 
-#Imprimir solucion
+
 
 def scoreSolucion(s,s_idx):
 
@@ -60,15 +60,17 @@ def scoreSolucion(s,s_idx):
         if( len(conjuntoSol | set(leGusta[x]))==len(conjuntoSol) and len(conjuntoSol & set(noLeGusta[x]))==0):
             score=score+1
 
-    return -score
-
+    return score
 
 def obtenerSolucion():
     global listaTotal,noLeGustaOrdenado,maxNoGustaIngredientesIni,maxNoGustaIngredientesFin,profundidadIngredientesIni,profundidadIngredientesFin
     
     mejorSol=[]
-    ga_instance = pygad.GA(num_generations=500,
-                       num_parents_mating=5,
+    ga_instance = pygad.GA( gene_type=int,
+                          init_range_low=0,
+                       init_range_high=2,
+                        num_generations=1000,
+                       num_parents_mating=2,
                        fitness_func=scoreSolucion,
                        sol_per_pop=8,
                        num_genes=len(noLeGustaOrdenado),
