@@ -142,11 +142,12 @@ def main():
 
     for i in range(nClientes):
         for j in range(i+1,nClientes):
-            if eliminarEnlaceGrafo(i,j):
+            if grafoClientes[i][j] and eliminarEnlaceGrafo(i,j):
                 grafoClientes[i][j]=0
+                grafoClientes[j][i]=0
 
 
-    #print(grafoClientes)
+    print(grafoClientes)
 
 
 
