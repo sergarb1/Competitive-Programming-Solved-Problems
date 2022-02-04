@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+from operator import le
 import sys
 import random
 import pandas as pd
@@ -8,6 +9,7 @@ import pandas as pd
 nClientes=0
 leGusta=[]
 noLeGusta=[]
+ingredientesNoGusta=set()
 ingredientesDisponibles=set()
 
 
@@ -29,46 +31,45 @@ for i in range(nClientes):
     leGusta.append(sys.stdin.readline().strip().split(" ")[1:])
 
     fila=sys.stdin.readline().strip().split(" ")[1:]
-    if(len(fila)>=limiteINI and len(fila)<=limiteFIN):
+    if(len(fila)>=limiteINI and len(fila)<=limiteFIN and len(fila)>0):
         j=j+1
         noLeGusta.append(fila)
+        for x in fila:
+            ingredientesNoGusta.add(x)
 
     #Incluimos ingredientes que gustan a la lista total de ingredientes
     for ingr in leGusta[i]:
         ingredientesDisponibles.add(ingr)
     #Incluimos ingredientes que no gustan a la lista total de ingredientes
   
-    for ingr in noLeGusta[j-1]:
-        ingredientesDisponibles.add(ingr)
+    if j>0:
+        for ingr in noLeGusta[j-1]:
+            ingredientesDisponibles.add(ingr)
     
 
 
 #Dataframe de lo que gusta y no gusta:
-dfGusta = pd.DataFrame(columns = ['Ingredientes', 'Conteo'])
+dfGusta = pd.DataFrame(columns = ['Ingredientes', 'Conteo','Ratio'])
 #Dataframe de lo que no gusta:
-dfNoGusta = pd.DataFrame(columns = ['Ingredientes', 'Conteo'])
+dfNoGusta = pd.DataFrame(columns = ['Ingredientes', 'Conteo','Ratio'])
 
-for ingr in leGusta:
+
+for ingr in ingredientesNoGusta:
     #Para cada elemento, contamos cuantos hay
-    elementos=sum(x.count(ingr) for x in leGusta)
 
-    fila = pd.Series([ingr,elementos], index = dfGusta.columns)
-    dfGusta = dfGusta.append(fila, ignore_index=True)
+    elementosGus=sum(x.count(ingr) for x in leGusta)
+    elementosNoG=sum(x.count(ingr) for x in noLeGusta)
     
+    ratioGustaNoGusta=elementosGus/elementosNoG
 
-for ingr in noLeGusta:
-    #Para cada elemento, contamos cuantos hay
-    elementos=sum(x.count(ingr) for x in noLeGusta)
+    fila = pd.Series([ingr,elementosGus,ratioGustaNoGusta], index = dfGusta.columns)
+    
+    #Deprecated 
+    # dfGusta = dfGusta.append(fila, ignore_index=True)
+    #Lo cambio por pasar la serie a dataframe +  transponerla
+    dfNoGusta=pd.concat([dfNoGusta,fila.to_frame().T])
 
-    fila = pd.Series([ingr,elementos], index = dfNoGusta.columns)
-    dfNoGusta = dfNoGusta.append(fila, ignore_index=True)
-
-dfGusta=dfGusta.sort_values('Conteo', ascending=False)
-#dfGusta.head()
-
-dfNoGusta=dfNoGusta.sort_values('Conteo', ascending=False)
-pd.set_option("max_rows", None)
-dfNoGusta.head()
+dfNoGusta=dfNoGusta.sort_values('Ratio', ascending=True)
 
 
 
@@ -77,4 +78,7 @@ listaGusta=list(dfGusta["Ingredientes"])
 #Imprimimos salida estandard los que no gustan
 for x in dfNoGusta["Ingredientes"]:
     #if x in listaGusta:
-    print(x[0])
+    print(x)
+
+
+#print(dfNoGusta.head(10))
