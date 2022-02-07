@@ -147,7 +147,7 @@ def main():
                 grafoClientes[j][i]=0
 
 
-    print(grafoClientes)
+    #print(grafoClientes)
 
 
 
