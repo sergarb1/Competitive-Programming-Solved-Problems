@@ -86,7 +86,7 @@ def scoreSolucion(s):
 def buscoMejor(mejoresUsados):
     global grafoClientes
     mejor=-1
-    valorMejor=10000
+    valorMejor=100000
 
     for i in range(len(grafoClientes)):
         if i in mejoresUsados:
@@ -115,8 +115,8 @@ def obtenerSolucion():
         for x in leGusta[mejor]:
             sol.add(x)
         puntos=scoreSolucion(sol)
-        if(puntos+10<score):
-            break
+        if(puntos<score):
+            continue
         else:
 
             for x in leGusta[mejor]:
@@ -126,9 +126,9 @@ def obtenerSolucion():
 
             if(puntos>score):
                 print(puntos)
-                #score=puntos
-                if puntos>1439 and not(os.path.isfile("D/"+str(score)+".out")):
-                    imprimirSolucionFichero(mejorSol,"D/"+str(score)+".out")
+                score=puntos
+                if puntos>1400 and not(os.path.isfile("E/"+str(score)+".out")):
+                    imprimirSolucionFichero(mejorSol,"E/"+str(score)+".out")
 
 
     return mejorSol

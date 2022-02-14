@@ -1,3 +1,0 @@
-Empty DataFrame
-Columns: [Ingredientes, Conteo, Ratio]
-Index: []
