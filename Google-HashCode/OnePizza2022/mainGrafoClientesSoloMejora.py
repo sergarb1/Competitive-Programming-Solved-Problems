@@ -115,7 +115,7 @@ def obtenerSolucion():
         for x in leGusta[mejor]:
             sol.add(x)
         puntos=scoreSolucion(sol)
-        if(puntos<score):
+        if(puntos<=score):
             continue
         else:
 
@@ -127,7 +127,7 @@ def obtenerSolucion():
             if(puntos>score):
                 print(puntos)
                 score=puntos
-                if puntos>1400 and not(os.path.isfile("E/"+str(score)+".out")):
+                if puntos>1700 and not(os.path.isfile("E/"+str(score)+".out")):
                     imprimirSolucionFichero(mejorSol,"E/"+str(score)+".out")
 
 
